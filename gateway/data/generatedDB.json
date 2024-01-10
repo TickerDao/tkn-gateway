@@ -1,0 +1,22 @@
+{
+	".": {
+		"name": "TKN Resolver",
+		"avatar": "https://gateway.tkn.xyz/ipfs/bafybeietl72akqaxu63gzkzud3awhr3s7hakcgtlkgq4xuutbyi5d7myqi",
+		"contractAddress": "0xF2C43c6389638Fc07b31FC78Ba06928a029bFCAB"
+	},
+    "eth": {
+
+    },
+    "op": {
+
+    },
+    "base": {
+
+    },
+    "goerli": {
+
+    },
+    "pgn": {
+
+    }
+}
