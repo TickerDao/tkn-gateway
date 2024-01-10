@@ -57,6 +57,12 @@ Token.init({
     }
   },
   source: { type: DataTypes.STRING },
+  globalNamespace: { 
+    type: DataTypes.BOOLEAN, 
+    defaultValue: false },
+  unprocessedData: {
+    type: DataTypes.JSON,
+    allowNull: true },
   archived: { type: DataTypes.BOOLEAN },
   updateID: { // Pointer to the token with updated data that replaces this one
     type: DataTypes.INTEGER,

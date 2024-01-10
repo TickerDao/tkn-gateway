@@ -26,7 +26,8 @@ import { fetchListooorData } from './generators/listooor.js';
         avatar: tokenObject.avatar,
         notice: tokenObject.notice,
         dweb: tokenObject.dweb,
-        source: "token-name-service" 
+        source: "token-name-service",
+        globalNamespace: true
       }, { transaction });
 
       for (let addressData of tokenObject.addresses) {
