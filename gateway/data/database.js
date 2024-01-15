@@ -31,6 +31,11 @@ const NetworkIDS = {
 	"base-sepolia": 84532
 }
 
+// These keys mark values in the database that will be migrated onchain
+const PublicTokenValues = ["name", "symbol", "description", "url", "avatar", "twitter", "github", "discord", "decimals", "notice", "dweb", "version", "globalNamespace", "isChainWithChainID", "isChainWithCoinType"];
+const PublicAddressValues = ["tokenID", "chainID", "address", "nonEVMAddress", "coinTypeID", "depreciated"];
+// const PublicAddressValues = ["tokenID", "chainID", "address", "nonEVMAddress", "depreciated"];
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const sequelize = new Sequelize({
     dialect: 'sqlite',
@@ -49,6 +54,8 @@ Token.init({
   decimals: DataTypes.INTEGER,
   notice: DataTypes.STRING,
   dweb: DataTypes.STRING,
+  isChainWithChainID: DataTypes.INTEGER,
+  isChainWithCoinType: DataTypes.INTEGER,
   version: {
     type: Sequelize.STRING,
     allowNull: false,
@@ -91,7 +98,7 @@ Address.init({
   nonEVMAddress: {
     type: DataTypes.STRING
   },
-  slip55ID: {
+  coinTypeID: {
     type: DataTypes.INTEGER
   },
   depreciated: {
@@ -116,4 +123,4 @@ sequelize.sync({ force: false }).then(() => {
   console.error('Error creating Token table:', error);
 });
 
-export { sequelize, Token, Address, NetworkIDS };
+export { sequelize, Token, Address, NetworkIDS, PublicTokenValues, PublicAddressValues };

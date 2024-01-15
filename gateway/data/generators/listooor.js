@@ -30,13 +30,14 @@ const fetchListooorData = async () => {
   // Fetch all lists:
   for (let list of lists) {
     try {
+      const listName = list.split('/').pop().split('.')[0];
       console.log("Fetching list: " + list)
       let response = await fetch(list, {
         method: "GET",
         headers: {"Accept-Encoding": "gzip, deflate"}
       });
       let data = await response.json();
-      listData[list] = data.tokens;
+      listData[listName] = data.tokens;
     } catch (error) {
       console.error(`Failed to fetch data from ${list}`, error);
     }

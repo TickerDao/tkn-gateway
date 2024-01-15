@@ -34,7 +34,7 @@ import { fetchListooorData } from './generators/listooor.js';
         // Create new addresses associated with the token
         if (addressData[0] == "nonEVM") {
           const addresses = await Address.bulkCreate([
-            { nonEVMAddress: addressData[1][1], slip55ID: addressData[1][0], tokenID: token.id },
+            { nonEVMAddress: addressData[1][1], coinTypeID: addressData[1][0], tokenID: token.id },
           ], { transaction });
         } else {
           const addresses = await Address.bulkCreate([
