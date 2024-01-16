@@ -27,7 +27,9 @@ import { fetchListooorData } from './generators/listooor.js';
         notice: tokenObject.notice,
         dweb: tokenObject.dweb,
         source: "token-name-service",
-        globalNamespace: true
+        globalNamespace: true,
+        isChainWithChainID: tokenObject.isChainWithChainID,
+        isChainWithCoinType: tokenObject.isChainWithCoinType
       }, { transaction });
 
       for (let addressData of tokenObject.addresses) {

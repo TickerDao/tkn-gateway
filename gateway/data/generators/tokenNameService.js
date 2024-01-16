@@ -19,40 +19,77 @@ const fetchTKNData = async () => {
   let tokenArr = [];
 
   for (const [key, value] of Object.entries(json)) {
-    let data = await tickerContract.dataFor(key.toLowerCase());
+    let name = `${key.toLowerCase()}.tkn.eth`;
+    console.log(name)
 
-    let tokenObject = {
-      name: data[1],
-      url: data[2],
-      avatar: data[3],
-      description: data[4],
-      notice: data[5],
-      version: data[6],
-      decimals: data[7],
-      twitter: data[8],
-      github: data[9],
-      dweb: data[10] !== "0x" ? data[10] : null,
-      symbol: key.toUpperCase(),
-      addresses: []
-    };
+    let resolverAddress = await provider.getResolver(name);
+    let resolver = new ethers.EnsResolver(provider, resolverAddress.address, name);
+    let address = await resolver.getAvatar(name);
+    let chainID = await resolver.getText('chainID')
+    let coinType = await resolver.getText('coinType')
+    let supportsWildcard = await resolver.supportsWildcard()
 
-    if (data[0] && data[0] !== "0x" && data[0] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push([1, data[0]]);
-    if (data[11] && data[11] !== "0x" && data[11] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push([42161, data[11]]);
-    if (data[12] && data[12] !== "0x" && data[12] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push([43114, data[12]]);
-    if (data[13] && data[13] !== "0x" && data[13] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push([8453, data[13]]);
-    if (data[14] && data[14] !== "0x" && data[14] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push([56, data[14]]);
-    if (data[15] && data[15] !== "0x" && data[15] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push([25, data[15]]);
-    if (data[16] && data[16] !== "0x" && data[16] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push([250, data[16]]);
-    if (data[17] && data[17] !== "0x" && data[17] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push([100, data[17]]);
-    if (data[18] && data[18] !== "0x" && data[18] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push([137, data[18]]);
-    if (data[19] && data[19] !== "0x" && data[19] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push(["nonEVM", [397, data[19]]]);
-    if (data[20] && data[20] !== "0x" && data[20] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push([10, data[20]]);
-    if (data[21] && data[21] !== "0x" && data[21] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push(["nonEVM", [501, data[21]]]);
-    if (data[22] && data[22] !== "0x" && data[22] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push(["nonEVM", [195, data[22]]]);
-    if (data[23] && data[23] !== "0x" && data[23] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push(["nonEVM", [119, data[23]]]);
-    if (data[24] && data[24] !== "0x" && data[24] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push([5, data[24]]);
-    if (data[25] && data[25] !== "0x" && data[25] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push([11155111, data[25]]);
+    console.log("chainID:", chainID, "coinType:", coinType, "wildcard:", supportsWildcard)
+    let tokenObject = {}
+    if (supportsWildcard) {
 
+      tokenObject = {
+        name: await resolver.getText('name'),
+        url: await resolver.getText('url'),
+        avatar: await resolver.getText('avatar'),
+        description: await resolver.getText('description'),
+        notice: await resolver.getText('notice'),
+        version: "0.0.1",
+        decimals: await resolver.getText('decimals'),
+        twitter: await resolver.getText('twitter'),
+        github: await resolver.getText('github'),
+        dweb: (await resolver.getText('dweb')) !== "0x" ? await resolver.getText('dweb') : null,
+        symbol: key.toUpperCase(),
+        addresses: [],
+        isChainWithChainID: chainID,
+        isChainWithCoinType: coinType
+      };
+
+      // Doesn't currently fetch sidechain addresses for wildcard supported resolved networks
+
+    } else {
+      let data = await tickerContract.dataFor(key.toLowerCase());
+      console.log(key, "Data fetched")
+
+      tokenObject = {
+        name: data[1],
+        url: data[2],
+        avatar: data[3],
+        description: data[4],
+        notice: data[5],
+        version: data[6],
+        decimals: data[7],
+        twitter: data[8],
+        github: data[9],
+        dweb: data[10] !== "0x" ? data[10] : null,
+        symbol: key.toUpperCase(),
+        addresses: [],
+        isChainWithChainID: chainID,
+        isChainWithCoinType: coinType
+      };
+
+      if (data[0] && data[0] !== "0x" && data[0] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push([1, data[0]]);
+      if (data[11] && data[11] !== "0x" && data[11] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push([42161, data[11]]);
+      if (data[12] && data[12] !== "0x" && data[12] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push([43114, data[12]]);
+      if (data[13] && data[13] !== "0x" && data[13] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push([8453, data[13]]);
+      if (data[14] && data[14] !== "0x" && data[14] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push([56, data[14]]);
+      if (data[15] && data[15] !== "0x" && data[15] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push([25, data[15]]);
+      if (data[16] && data[16] !== "0x" && data[16] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push([250, data[16]]);
+      if (data[17] && data[17] !== "0x" && data[17] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push([100, data[17]]);
+      if (data[18] && data[18] !== "0x" && data[18] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push([137, data[18]]);
+      if (data[19] && data[19] !== "0x" && data[19] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push(["nonEVM", [397, data[19]]]);
+      if (data[20] && data[20] !== "0x" && data[20] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push([10, data[20]]);
+      if (data[21] && data[21] !== "0x" && data[21] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push(["nonEVM", [501, data[21]]]);
+      if (data[22] && data[22] !== "0x" && data[22] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push(["nonEVM", [195, data[22]]]);
+      if (data[23] && data[23] !== "0x" && data[23] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push(["nonEVM", [119, data[23]]]);
+      if (data[24] && data[24] !== "0x" && data[24] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push([5, data[24]]);
+      if (data[25] && data[25] !== "0x" && data[25] !== "0x0000000000000000000000000000000000000000") tokenObject.addresses.push([11155111, data[25]]);
+    }
     tknDataArray.push(tokenObject);
   }
 
