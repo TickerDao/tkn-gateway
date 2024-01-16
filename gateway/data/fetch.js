@@ -68,11 +68,49 @@ import { fetchListooorData } from './generators/listooor.js';
         include: Token
       });
 
-      console.log(address)
+      if (address) {
+        // Update the associated token
+        // await address.token.update({
+        //   name: 'New Name',
+        //   symbol: 'New Symbol',
+        //   // ... other fields you want to update
+        // });
+      } else {
+        // Create new token
+        const transaction = await sequelize.transaction();
+
+        try {
+          // Create a new token
+          const token = await Token.create({ 
+            name: tokenValue.name,
+            symbol: tokenValue.symbol,
+            decimals: tokenValue.decimals,
+            avatar: tokenValue.logoURI,
+            version: "0.0.1",
+            source: list + "-tokenlist"
+          }, { transaction });
+        
+          // Create new address associated with the token
+          const address = await Address.create({
+            address: tokenValue.address,
+            chainID: tokenValue.chainId,
+            tokenID: token.id
+          }, { transaction });
+        
+          // If everything goes well, commit the transaction
+          await transaction.commit();
+        } catch (error) {
+          // If there's an error, rollback the transaction
+          await transaction.rollback();
+          throw error;
+        }
+      }
     }
   }
+  console.log("Finished parsing tokenlists")
 
 
+  // Migrate data onchain
 
 
   
